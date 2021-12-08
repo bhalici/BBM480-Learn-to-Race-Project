@@ -121,6 +121,7 @@ class Learn2RaceEvaluator:
 
             # Record the infractions for the completed lap
             self.metrics[idx]["num_infractions"] = metrics["num_infractions"] - self.infractions_till_last_lap
+            self.metrics[idx]["pct_complete"] = 100
 
             # Start recording metrics for the next lap
             idx = self.laps_completed
