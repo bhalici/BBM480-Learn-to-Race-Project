@@ -4,7 +4,6 @@ from agents.random_agent import RandomAgent
 class SubmissionConfig(object):
     agent = RandomAgent
     pre_eval_time = 100
-    eval_episodes = 10
 
 
 class EnvConfig(object):
