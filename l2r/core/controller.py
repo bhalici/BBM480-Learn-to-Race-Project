@@ -56,7 +56,7 @@ class SimulatorController(object):
         ip="0.0.0.0",
         port="16000",
         quiet=False,
-        sim_version="ArrivalSim-linux-0.7.1.188691",
+        sim_version="ArrivalSim-linux-0.7.0.182276",
         sim_running=False,
         start_container=False,
         image_name="arrival-sim",
@@ -112,18 +112,18 @@ class SimulatorController(object):
 
         if self.sim_running:
             print(
-                "Assiuming sim is running as a separate process. If this is not true, either start sim manually or adjust the config."
+                "[SimulatorController] Assuming sim is running as a separate process. If this is not true, either start sim manually or adjust the config."
             )
             pass
         else:
 
             if self.start_container:
-                print("Starting simulator container")
+                print("[SimulatorController] Starting simulator container")
                 with open("/tmp/sim_log.txt", "w") as out:
                     subprocess.Popen(self.start, shell=True, stdout=out, stderr=out)
 
             elif self.sim_path:
-                print("Starting simulator")
+                print("[SimulatorController] Starting simulator")
                 pth = os.path.join(self.sim_path, "ArrivalSim.sh")
                 cmd = ["sudo", "-u", self.user, pth, "-openGL"]
                 with open("/tmp/sim_log.txt", "w") as out:

@@ -150,7 +150,7 @@ class RacingEnv(gym.Env):
         controller_kwargs = env_kwargs["controller_kwargs"]
         reward_kwargs = env_kwargs["reward_kwargs"]
         action_if_kwargs = env_kwargs["action_if_kwargs"]
-        pose_if_kwargs = env_kwargs["pose_if_kwargs"]
+        '''pose_if_kwargs = env_kwargs["pose_if_kwargs"]
         camera_if_kwargs = env_kwargs["camera_if_kwargs"]
         cameras = env_kwargs["cameras"]
 
@@ -162,7 +162,10 @@ class RacingEnv(gym.Env):
             }
         }
 
-        # pdb.set_trace()
+        # pdb.set_trace()'''
+        cameras=env_kwargs['cameras']
+        pose_if_kwargs=env_kwargs['pose_if_kwargs']     
+
 
         # class init
         self.controller = SimulatorController(**controller_kwargs)
@@ -172,7 +175,7 @@ class RacingEnv(gym.Env):
         # self.cameras = [(camera_sensor_name,
         #    utils.CameraInterface(**camera_if_kwargs))]
 
-        self.cameras = [
+        '''self.cameras = [
             (name, params, utils.CameraInterface(addr=params["Addr"]))
             for name, params in cameras.items()
         ]
@@ -193,7 +196,8 @@ class RacingEnv(gym.Env):
         if birdseye_segm_if_kwargs:
             self.cameras.append(
                 ("CameraBirdsEyeSegm", utils.CameraInterface(**birdseye_segm_if_kwargs))
-            )
+            )'''
+        self.cameras = [(name, params, utils.CameraInterface(**params)) for name, params in cameras.items() if name in self.sensors]
 
         self.reward = (
             GranTurismo(**reward_kwargs)
@@ -221,6 +225,7 @@ class RacingEnv(gym.Env):
         vehicle_params=None,
         multi_agent=False,
         remake=False,
+        cameras=False
     ):
         """Unlike many environments, make does not start the simulator process.
         It does, however, configure the simulator's settings. The simulator
@@ -244,7 +249,7 @@ class RacingEnv(gym.Env):
         self.driver_params = driver_params if driver_params else self.driver_params
         self.camera_params = camera_params if camera_params else self.camera_params
 
-        camera_sensor_name = [c for c in self.sensors if "Camera" in c][0]
+        '''camera_sensor_name = [c for c in self.sensors if "Camera" in c][0]
         self.camera_dims = {
             camera_sensor_name: {  # 'CameraFrontalRGB'
                 "width": self.camera_params["Width"],
@@ -268,7 +273,9 @@ class RacingEnv(gym.Env):
             self.camera_dims["CameraBirdsEyeSegm"] = {
                 "width": birdseye_segm_params["Width"],
                 "height": birdseye_segm_params["Height"],
-            }
+            }'''
+        self.cameras = [(name, params, utils.CameraInterface(**params)) for name, params in cameras.items() if name in self.sensors] \
+            if cameras else self.cameras
 
         if type(level) == str:
             self.level = level
@@ -506,10 +513,9 @@ class RacingEnv(gym.Env):
 
         if self._multimodal:
             _spaces["sensors"] = Box(
-                low=np.array(MIN_OBS_ARR), high=np.array(MAX_OBS_ARR)
+                low=np.array(MIN_OBS_ARR), high=np.array(MAX_OBS_ARR), dtype=np.float64
             )
         self.observation_space = Dict(_spaces)
-        # print(self.observation_space)
 
     def _observe(self):
         """Perform an observation action by getting the most recent data from
