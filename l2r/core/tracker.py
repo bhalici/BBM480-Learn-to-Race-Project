@@ -129,7 +129,6 @@ class ProgressTracker(object):
         :param numpy.array ac: directional acceleration, shape of (3,)
         :param numpy.array bp: brake pressure, per wheel, shape of (4,)
         """
-        #print(f"idx: {idx}")
         self.absolute_idx = idx
         now = time.time()
 
@@ -201,9 +200,6 @@ class ProgressTracker(object):
 
         closest_border_shft = self.segment_tree.query([shifted_idx])
         closest_border_abs = self.segment_tree.query([absolute_idx])
-        '''print(
-            f"Current segment: {self.current_segment}\nSegment proposal (shifted idx: {shifted_idx}): ({closest_border_shft[0]},{closest_border_shft[1]})\nSegment proposal (absolute idx: {absolute_idx}): ({closest_border_abs[0]},{closest_border_abs[1]})\nSegment idxs: {self.segment_idxs}\nWrong way: {self.wrong_way}"
-        )'''
         print(f"[Tracker] Track index: {absolute_idx}")
         print(f"[Tracker] Current segment: {self.current_segment}")
         print(f"[Tracker] Distance to closest segment border: ({closest_border_abs[0]}, {closest_border_abs[1]})")
@@ -234,9 +230,6 @@ class ProgressTracker(object):
                 else False
             )
 
-        '''print(
-            f"shft_idx:{shifted_idx}, abs_idx: {absolute_idx}, success:{self.segment_success}, curr_seg:{current_segment}, half:{self.halfway_flag}"
-        )'''
         print(f"[Tracker] Segment success: {self.segment_success}")
         print(f"[Tracker] Crossed halfway point: {self.halfway_flag}\n")
 
@@ -491,9 +484,6 @@ class ProgressTracker(object):
                     self.segment_success[curr_seg_sanitized] = False
 
         total_idxs = self.last_idx + self.n_indices * len(self.lap_times)
-
-        #if self.wrong_way or self.idx_dir < 0:
-        #    info["wrong_way"] = True
 
         if self.ep_step_ct == CHECK_PROGRESS_AT and total_idxs < PROGRESS_THRESHOLD:
             info["not_progressing"] = True

@@ -58,27 +58,69 @@ N_SEGMENTS = 10
 
 # Pose observation space boundaries
 MIN_OBS_ARR = [
-    -1.0, -1.0, -1.0,  # steering, gear, mode
-    -200.0, -200.0, -10.0,  # velocity
-    -100.0, -100.0, -100.0,  # acceleration
-    -1.0, -1.0, -5.0,  # angular velocity
-    -6.2832, -6.2832, -6.2832,  # yaw, pitch, roll
-    -2000.0, 2000.0, 2000.0,  # location coordinates in the format (y, x, z)
-    -2000.0, -2000.0, -2000.0, -2000.0,  # rpm (per wheel)
-    -1.0, -1.0, -1.0, -1.0,  # brake (per wheel)
-    -1.0, -1.0, -1300.0, -1300.0,  # torq (per wheel)
+    -1.0,
+    -1.0,
+    -1.0,  # steering, gear, mode
+    -200.0,
+    -200.0,
+    -10.0,  # velocity
+    -100.0,
+    -100.0,
+    -100.0,  # acceleration
+    -1.0,
+    -1.0,
+    -5.0,  # angular velocity
+    -6.2832,
+    -6.2832,
+    -6.2832,  # yaw, pitch, roll
+    -2000.0,
+    2000.0,
+    2000.0,  # location coordinates in the format (y, x, z)
+    -2000.0,
+    -2000.0,
+    -2000.0,
+    -2000.0,  # rpm (per wheel)
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,  # brake (per wheel)
+    -1.0,
+    -1.0,
+    -1300.0,
+    -1300.0,  # torq (per wheel)
 ]
 
 MAX_OBS_ARR = [
-    1.0, 4.0, 1.0,  # steering, gear, mode
-    200.0, 200.0, 10.0,  # velocity
-    100.0, 100.0, 100.0,  # acceleration
-    1.0, 1.0, 5.0,  # angular velocity
-    6.2832, 6.2832, 6.2832,  # yaw, pitch, roll
-    2000.0, 2000.0, 2000.0,  # location coordinates in the format (y, x, z)
-    2500.0, 2500.0, 2500.0, 2500.0,  # rpm (per wheel)
-    1.0, 1.0, 2.0, 2.0,  # brake (per wheel)
-    1.0, 1.0, 1300.0, 1300.0,  # torq (per wheel)
+    1.0,
+    4.0,
+    1.0,  # steering, gear, mode
+    200.0,
+    200.0,
+    10.0,  # velocity
+    100.0,
+    100.0,
+    100.0,  # acceleration
+    1.0,
+    1.0,
+    5.0,  # angular velocity
+    6.2832,
+    6.2832,
+    6.2832,  # yaw, pitch, roll
+    2000.0,
+    2000.0,
+    2000.0,  # location coordinates in the format (y, x, z)
+    2500.0,
+    2500.0,
+    2500.0,
+    2500.0,  # rpm (per wheel)
+    1.0,
+    1.0,
+    2.0,
+    2.0,  # brake (per wheel)
+    1.0,
+    1.0,
+    1300.0,
+    1300.0,  # torq (per wheel)
 ]
 
 # Racetrack IDs
@@ -150,22 +192,8 @@ class RacingEnv(gym.Env):
         controller_kwargs = env_kwargs["controller_kwargs"]
         reward_kwargs = env_kwargs["reward_kwargs"]
         action_if_kwargs = env_kwargs["action_if_kwargs"]
-        '''pose_if_kwargs = env_kwargs["pose_if_kwargs"]
-        camera_if_kwargs = env_kwargs["camera_if_kwargs"]
         cameras = env_kwargs["cameras"]
-
-        camera_sensor_name = [c for c in self.sensors if "Camera" in c][0]
-        self.camera_dims = {
-            camera_sensor_name: {  # 'CameraFrontalRGB'
-                "Width": self.camera_params["Width"],
-                "Height": self.camera_params["Height"],
-            }
-        }
-
-        # pdb.set_trace()'''
-        cameras=env_kwargs['cameras']
-        pose_if_kwargs=env_kwargs['pose_if_kwargs']     
-
+        pose_if_kwargs = env_kwargs["pose_if_kwargs"]
 
         # class init
         self.controller = SimulatorController(**controller_kwargs)
@@ -174,30 +202,11 @@ class RacingEnv(gym.Env):
 
         # self.cameras = [(camera_sensor_name,
         #    utils.CameraInterface(**camera_if_kwargs))]
-
-        '''self.cameras = [
-            (name, params, utils.CameraInterface(addr=params["Addr"]))
+        self.cameras = [
+            (name, params, utils.CameraInterface(**params))
             for name, params in cameras.items()
+            if name in self.sensors
         ]
-
-        # self.cameras = [(camera_sensor_name, self.camera_dims[camera_sensor_name],
-        #    utils.CameraInterface(**camera_if_kwargs))]
-
-        if segm_if_kwargs:
-            self.cameras.append(
-                ("CameraFrontSegm", utils.CameraInterface(**segm_if_kwargs))
-            )
-
-        if birdseye_if_kwargs:
-            self.cameras.append(
-                ("CameraBirdsEye", utils.CameraInterface(**birdseye_if_kwargs))
-            )
-
-        if birdseye_segm_if_kwargs:
-            self.cameras.append(
-                ("CameraBirdsEyeSegm", utils.CameraInterface(**birdseye_segm_if_kwargs))
-            )'''
-        self.cameras = [(name, params, utils.CameraInterface(**params)) for name, params in cameras.items() if name in self.sensors]
 
         self.reward = (
             GranTurismo(**reward_kwargs)
@@ -225,7 +234,7 @@ class RacingEnv(gym.Env):
         vehicle_params=None,
         multi_agent=False,
         remake=False,
-        cameras=False
+        cameras=False,
     ):
         """Unlike many environments, make does not start the simulator process.
         It does, however, configure the simulator's settings. The simulator
@@ -248,34 +257,15 @@ class RacingEnv(gym.Env):
         self.sensors = sensors if sensors else self.sensors
         self.driver_params = driver_params if driver_params else self.driver_params
         self.camera_params = camera_params if camera_params else self.camera_params
-
-        '''camera_sensor_name = [c for c in self.sensors if "Camera" in c][0]
-        self.camera_dims = {
-            camera_sensor_name: {  # 'CameraFrontalRGB'
-                "width": self.camera_params["Width"],
-                "height": self.camera_params["Height"],
-            }
-        }
-
-        if segm_params:
-            self.camera_dims["CameraFrontSegm"] = {
-                "width": segm_params["Width"],
-                "height": segm_params["Height"],
-            }
-
-        if birdseye_params:
-            self.camera_dims["CameraBirdsEye"] = {
-                "width": birdseye_params["Width"],
-                "height": birdseye_params["Height"],
-            }
-
-        if birdseye_segm_params:
-            self.camera_dims["CameraBirdsEyeSegm"] = {
-                "width": birdseye_segm_params["Width"],
-                "height": birdseye_segm_params["Height"],
-            }'''
-        self.cameras = [(name, params, utils.CameraInterface(**params)) for name, params in cameras.items() if name in self.sensors] \
-            if cameras else self.cameras
+        self.cameras = (
+            [
+                (name, params, utils.CameraInterface(**params))
+                for name, params in cameras.items()
+                if name in self.sensors
+            ]
+            if cameras
+            else self.cameras
+        )
 
         if type(level) == str:
             self.level = level
