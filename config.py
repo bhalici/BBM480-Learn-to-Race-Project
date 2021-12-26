@@ -1,8 +1,9 @@
 from agents.random_agent import RandomAgent
+from agents.sac_agent import SACAgent
 
 
 class SubmissionConfig(object):
-    agent = RandomAgent
+    agent = SACAgent
     pre_eval_time = 100
 
 
@@ -30,8 +31,8 @@ class EnvConfig(object):
     action_if_kwargs = {
         "max_accel": 6,
         "min_accel": -16,
-        "max_steer": .3,
-        "min_steer": -.3,
+        "max_steer": 0.3,
+        "min_steer": -0.3,
         "ip": "0.0.0.0",
         "port": 7077,
     }
@@ -96,7 +97,7 @@ class EnvConfig(object):
             "FOVAngle": 90,
             "Width": 512,
             "Height": 384,
-        }
+        },
     }
 
 
