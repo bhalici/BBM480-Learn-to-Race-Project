@@ -106,7 +106,6 @@ class Learn2RaceEvaluator:
         # If the lap is completed, record lap stats
         if lap_completed:
             self.laps_completed = metrics["laps_completed"]
-
             # Record the infractions for the completed lap
             self.metrics[idx]["num_infractions"] = (
                 metrics["num_infractions"] - self.infractions_till_last_lap
