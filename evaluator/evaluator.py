@@ -103,6 +103,21 @@ class Learn2RaceEvaluator:
         if idx not in self.metrics:
             self.metrics[idx] = {}
 
+        # If the lap is completed, record lap stats
+        if lap_completed:
+            self.laps_completed = metrics["laps_completed"]
+
+            # Record the infractions for the completed lap
+            self.metrics[idx]["num_infractions"] = (
+                metrics["num_infractions"] - self.infractions_till_last_lap
+            )
+            self.metrics[idx]["pct_complete"] = 100
+
+            # Start recording metrics for the next lap
+            idx = self.laps_completed
+            self.metrics[idx] = {}
+            self.infractions_till_last_lap = metrics["num_infractions"]
+
         for metric_name in self.metrics_to_add:
             if metric_name in self.metrics[idx]:
                 self.metrics[idx][metric_name] += metrics[metric_name]
@@ -115,18 +130,6 @@ class Learn2RaceEvaluator:
             else:
                 self.metrics[idx][metric] = [metrics[metric]]
 
-        # If the lap is completed, record lap stats
-        if lap_completed:
-            self.laps_completed = metrics["laps_completed"]
-
-            # Record the infractions for the completed lap
-            self.metrics[idx]["num_infractions"] = metrics["num_infractions"] - self.infractions_till_last_lap
-            self.metrics[idx]["pct_complete"] = 100
-
-            # Start recording metrics for the next lap
-            idx = self.laps_completed
-            self.infractions_till_last_lap = metrics["num_infractions"]
-
         for metric in self.metrics_to_replace:
             self.metrics[idx][metric] = metrics[metric]
 
@@ -135,9 +138,9 @@ class Learn2RaceEvaluator:
 
     def display_metrics(self):
         for lap, metrics in self.metrics.items():
-            print("="*10)
+            print("=" * 10)
             print(f"LAP #{lap+1}")
-            print("="*10)
+            print("=" * 10)
 
             for key in self.metrics_to_replace:
                 print(key, metrics[key])
