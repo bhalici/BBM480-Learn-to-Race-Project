@@ -120,11 +120,14 @@ class Learn2RaceEvaluator:
             self.laps_completed = metrics["laps_completed"]
 
             # Record the infractions for the completed lap
-            self.metrics[idx]["num_infractions"] = metrics["num_infractions"] - self.infractions_till_last_lap
+            self.metrics[idx]["num_infractions"] = (
+                metrics["num_infractions"] - self.infractions_till_last_lap
+            )
             self.metrics[idx]["pct_complete"] = 100
 
             # Start recording metrics for the next lap
             idx = self.laps_completed
+            self.metrics[idx] = {}
             self.infractions_till_last_lap = metrics["num_infractions"]
 
         for metric in self.metrics_to_replace:
@@ -135,9 +138,9 @@ class Learn2RaceEvaluator:
 
     def display_metrics(self):
         for lap, metrics in self.metrics.items():
-            print("="*10)
+            print("=" * 10)
             print(f"LAP #{lap+1}")
-            print("="*10)
+            print("=" * 10)
 
             for key in self.metrics_to_replace:
                 print(key, metrics[key])
