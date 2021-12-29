@@ -56,7 +56,7 @@ class SimulatorController(object):
         ip="0.0.0.0",
         port="16000",
         quiet=False,
-        sim_version="ArrivalSim-linux-0.7.1.188691",
+        sim_version="ArrivalSim-linux-0.7.0.182276",
         sim_running=False,
         start_container=False,
         image_name="arrival-sim",
@@ -82,11 +82,11 @@ class SimulatorController(object):
             self.ws = create_connection(f"ws://{self.addr}")
         except ConnectionRefusedError:
             if start_container or sim_path:
-                print("Failed to connect to simulator. Trying again.")
+                print("[Controller] Failed to connect to simulator. Trying again.")
                 time.sleep(MEDIUM_DELAY // 2)
                 self.ws = create_connection(f"ws://{self.addr}")
             else:
-                print("Simulator is not running. Aborting.")
+                print("[Controller] Simulator is not running. Aborting.")
                 exit(1)
 
         self.sim_version = sim_version
@@ -99,7 +99,7 @@ class SimulatorController(object):
     def __del__(self):
         """Stop the simulator on exit"""
         if self.start_container:
-            print("Controller destroyed. Tearing down simulator.")
+            print("[Controller] Controller destroyed. Tearing down simulator.")
             self.kill_simulator()
 
     def start_simulator(self):
@@ -108,22 +108,20 @@ class SimulatorController(object):
         """
         assert not (
             self.start_container and self.sim_path
-        ), "Let L2R start EITHER a docker container OR a native simulator -- not both"
+        ), "[Controller] Let L2R start EITHER a docker container OR a native simulator -- not both"
 
         if self.sim_running:
-            print(
-                "Assiuming sim is running as a separate process. If this is not true, either start sim manually or adjust the config."
-            )
+            print("[Controller] Assuming sim is running as a separate process")
             pass
         else:
 
             if self.start_container:
-                print("Starting simulator container")
+                print("[Controller] Starting simulator container")
                 with open("/tmp/sim_log.txt", "w") as out:
                     subprocess.Popen(self.start, shell=True, stdout=out, stderr=out)
 
             elif self.sim_path:
-                print("Starting simulator")
+                print("[Controller] Starting simulator")
                 pth = os.path.join(self.sim_path, "ArrivalSim.sh")
                 cmd = ["sudo", "-u", self.user, pth, "-openGL"]
                 with open("/tmp/sim_log.txt", "w") as out:
@@ -458,11 +456,11 @@ class SimulatorController(object):
             return msg["result"]
         except Exception:
             print(msg)
-            print("Disconnected from simulator")
+            print("[Controller] Disconnected from simulator")
             exit(-1)
         return msg["result"]
 
     def _print(self, msg, force=False):
         """Helper print routine"""
         if not self.quiet and not force:
-            print(f"[SimulatorController] {msg}")
+            print(f"[Controller] {msg}")

@@ -244,7 +244,6 @@ class ProgressTracker(object):
                 self.segment_success[-1] = True
                 self.segment_success_final = self.segment_success
                 self.current_segment = 0
-                #print(f"[Tracker] In 'check_lap_completion': segment_success_final: {self.segment_success_final}")
 
             return True
 
