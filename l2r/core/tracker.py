@@ -56,10 +56,23 @@ class ProgressTracker(object):
       from the racetrack map data
     """
 
-    def __init__(self, n_indices, inner_track, outer_track, centerline,
-                 car_dims, obs_delay, max_timesteps, not_moving_ct, debug=False, 
-                 n_eval_laps=1, n_segments=10, segment_idxs=None, segment_tree=None, 
-                 eval_mode=False, coord_multiplier=dict()):
+    def __init__(self, 
+        n_indices,
+        inner_track,
+        outer_track,
+        centerline,
+        car_dims,
+        obs_delay,
+        max_timesteps,
+        not_moving_ct,
+        debug=False,
+        n_eval_laps=1,
+        n_segments=10,
+        segment_idxs=None,
+        segment_tree=None,
+        eval_mode=False,
+        coord_multiplier=dict()
+    ):
         self.n_indices = n_indices
         self.inner_track = inner_track
         self.outer_track = outer_track
@@ -121,7 +134,7 @@ class ProgressTracker(object):
         :param numpy.array ac: directional acceleration, shape of (3,)
         :param numpy.array bp: brake pressure, per wheel, shape of (4,)
         """
-        #print(f'idx: {idx}')
+        #print(f"idx: {idx}")
         self.absolute_idx = idx
         now = time.time()
 
@@ -136,7 +149,7 @@ class ProgressTracker(object):
             return
 
         if idx >= self.n_indices:
-            raise Exception('Index out of bounds')
+            raise Exception("Index out of bounds")
 
         n_out = self._count_wheels_oob(e, n, yaw)
         c_dist = self._dist_to_segment([e, n], idx)
@@ -278,10 +291,10 @@ class ProgressTracker(object):
             or info["wrong_way"]
         ):
             
-            if not info['success']: self.segment_success_final = self.segment_success
-            if not info['success']: self.respawns += 1
-            if info['oob']: self.num_infractions += 1
-            if info['wrong_way']: self.num_infractions += 1
+            if not info["success"]: self.segment_success_final = self.segment_success
+            if not info["success"]: self.respawns += 1
+            if info["oob"]: self.num_infractions += 1
+            if info["wrong_way"]: self.num_infractions += 1
         
             return True, self.append_metrics(info)
 
@@ -310,24 +323,24 @@ class ProgressTracker(object):
         proportion_unsafe = np.dot(transitions[-4], transitions[-1]) / total_time
 
         metrics = dict()
-        metrics['num_infractions'] = self.num_infractions
-        metrics['total_time'] = round(total_time, 2)
-        metrics['total_distance'] = round(total_distance, 2)
-        metrics['average_speed_kph'] = round(avg_speed, 2)
-        metrics['average_displacement_error'] = round(avg_cline_displacement, 2)
-        metrics['trajectory_efficiency'] = round(track_curvature / avg_curvature, 3)
-        metrics['trajectory_admissibility'] = round(1 - (proportion_unsafe**0.5), 3)
-        metrics['movement_smoothness'] = round(ms, 3)
-        metrics['timestep/sec'] = round(len(path[0]) / total_time, 2)
+        metrics["num_infractions"] = self.num_infractions
+        metrics["total_time"] = round(total_time, 2)
+        metrics["total_distance"] = round(total_distance, 2)
+        metrics["average_speed_kph"] = round(avg_speed, 2)
+        metrics["average_displacement_error"] = round(avg_cline_displacement, 2)
+        metrics["trajectory_efficiency"] = round(track_curvature / avg_curvature, 3)
+        metrics["trajectory_admissibility"] = round(1 - (proportion_unsafe**0.5), 3)
+        metrics["movement_smoothness"] = round(ms, 3)
+        metrics["timestep/sec"] = round(len(path[0]) / total_time, 2)
 
         if self.eval_mode: 
-            metrics['laps_completed'] = self.laps_completed
-            metrics['pct_complete'] = np.min([100,round(100*total_idxs/(self.n_eval_laps*self.n_indices),1)])
-            metrics['success_rate'] = sum(self.segment_success_final)/self.n_segments
+            metrics["laps_completed"] = self.laps_completed
+            metrics["pct_complete"] = np.min([100,round(100*total_idxs/(self.n_eval_laps*self.n_indices),1)])
+            metrics["success_rate"] = sum(self.segment_success_final)/self.n_segments
 
-        info['metrics'] = metrics
+        info["metrics"] = metrics
 
-        if info['success']:
+        if info["success"]:
             if self.eval_mode: 
                 self.segment_success = [0]*self.n_segments
 
@@ -367,9 +380,8 @@ class ProgressTracker(object):
         return k_rms
 
     @staticmethod
-    def _log_dimensionless_jerk(movement, freq, data_type='accl'):
-        """Sivakumar Balasubramanian's implmentation of log dimensionless
-        jerk.
+    def _log_dimensionless_jerk(movement, freq, data_type="accl"):
+        """Sivakumar Balasubramanian's implmentation of log dimensionless jerk.
 
         Source: https://github.com/siva82kb/SPARC/blob/master/scripts/smoothness.py
 
@@ -381,26 +393,23 @@ class ProgressTracker(object):
         :return: dimensionless jerk, a smoothness metric
         :rtype: float
         """
-        if data_type not in ('speed', 'accl', 'jerk'):
-            raise ValueError('\n'.join(("The argument data_type must be either",
+        if data_type not in ("speed", "accl", "jerk"):
+            raise ValueError("\n".join(
+                ("The argument data_type must be either",
                                         "'speed', 'accl' or 'jerk'.")))
 
         movement = np.array(movement)
         movement_peak = max(abs(movement))
-        dt = 1. / freq
+        dt = 1.0 / freq
         movement_dur = len(movement) * dt
-        _p = {
-            'speed': 3,
-            'accl': 1,
-            'jerk': -1
-        }
+        _p = {"speed": 3, "accl": 1, "jerk": -1}
         p = _p[data_type]
         scale = pow(movement_dur, p) / pow(movement_peak, 2)
 
         # estimate jerk
-        if data_type == 'speed':
+        if data_type == "speed":
             jerk = np.diff(movement, 2) / pow(dt, 2)
-        elif data_type == 'accl':
+        elif data_type == "accl":
             jerk = np.diff(movement, 1) / pow(dt, 1)
         else:
             jerk = movement
@@ -423,17 +432,16 @@ class ProgressTracker(object):
         return abs(np.cross(l2 - l1, p - l1) / np.linalg.norm(l2 - l1))
 
     def _is_terminal(self):
-        """Determine if the environment is in a terminal state
-        """
+        """Determine if the environment is in a terminal state"""
         info = {
-            'stuck': False,
-            'oob': False,
-            'success': False,
-            'dnf': False,
-            'wrong_way': False,
-            'end_last_segment': False,
-            'not_progressing': False,
-            'lap_times': self.lap_times
+            "stuck": False,
+            "oob": False,
+            "success": False,
+            "dnf": False,
+            "wrong_way": False,
+            "end_last_segment": False,
+            "not_progressing": False,
+            "lap_times": self.lap_times
         }
 
         # correct for zero-index and for current_segment being greater than n_segments (post-lap complection)
@@ -441,38 +449,38 @@ class ProgressTracker(object):
                 if self.current_segment > self.n_segments else (self.current_segment-1)
 
         if self.eval_mode:
-            info['segment_success'] = self.segment_success_final
+            info["segment_success"] = self.segment_success_final
 
         if len(self.lap_times) >= self.n_eval_laps:
-            info['success'] = True
-            info['total_time'] = round(sum(self.lap_times), 2) \
+            info["success"] = True
+            info["total_time"] = round(sum(self.lap_times), 2) \
                     if len(self.lap_times) > 1 else round(sum(self.lap_times))
-            #info['total_time'] = round(sum(self.lap_times), 2)
+            #info["total_time"] = round(sum(self.lap_times), 2)
 
         if len(self.transitions) > self.not_moving_ct:
             if self.transitions[-1][3] == self.transitions[-self.not_moving_ct][3]:
-                info['stuck'] = True
+                info["stuck"] = True
                 if self.eval_mode: self.segment_success[curr_seg_sanitized] = False
 
         total_idxs = self.last_idx + self.n_indices * len(self.lap_times)
 
         #if self.wrong_way or self.idx_dir < 0:
-        #    info['wrong_way'] = True
+        #    info["wrong_way"] = True
 
         if self.ep_step_ct == CHECK_PROGRESS_AT and total_idxs < PROGRESS_THRESHOLD:
-            info['not_progressing'] = True
+            info["not_progressing"] = True
             if self.eval_mode: self.segment_success[curr_seg_sanitized] = False
 
         if self.ep_step_ct >= self.max_timesteps:
-            info['dnf'] = True
+            info["dnf"] = True
             if self.eval_mode: self.segment_success[curr_seg_sanitized] = False
 
         if self._car_out_of_bounds():
-            info['oob'] = True
+            info["oob"] = True
             if self.eval_mode: self.segment_success[curr_seg_sanitized] = False
 
             if self.eval_mode and self.current_segment == self.n_segments:
-                info['end_last_segment'] = True
+                info["end_last_segment"] = True
 
         return info
 
@@ -505,8 +513,8 @@ class ProgressTracker(object):
     def get_segment_coords(self, centerline, segment_idxs):
 
         segment_coords = {
-                'first': [self.coord_multiplier*centerline[index] for index in segment_idxs],
-                'second': [self.coord_multiplier*centerline[index+1] for index in segment_idxs],
+                "first": [self.coord_multiplier*centerline[index] for index in segment_idxs],
+                "second": [self.coord_multiplier*centerline[index+1] for index in segment_idxs],
                 }
         
         return segment_coords
