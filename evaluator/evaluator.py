@@ -143,13 +143,16 @@ class Learn2RaceEvaluator:
             print("=" * 10)
 
             for key in self.metrics_to_replace:
-                print(key, metrics[key])
+                if key in metrics: 
+                    print(key, metrics[key])
 
             for key in self.metrics_to_add:
-                print(key, metrics[key])
+                if key in metrics: 
+                    print(key, metrics[key])
 
             for key in self.metrics_to_append:
-                print(key, round(np.mean(metrics[key]), 3))
+                if key in metrics: 
+                    print(key, round(np.mean(metrics[key]), 3))
 
     def create_env(self):
         """Your configuration yaml file must contain the keys below."""
