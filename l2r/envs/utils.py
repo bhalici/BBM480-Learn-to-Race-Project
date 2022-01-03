@@ -191,8 +191,7 @@ class CameraInterface(AbstractInterface):
         self.sock = ctx.socket(zmq.SUB)
         self.sock.setsockopt(zmq.SUBSCRIBE, b"")
         self.sock.setsockopt(zmq.CONFLATE, 1)
-        self.addr = f"{ip}:{port}" if not addr else addr
-        self.sock.connect(self.addr)
+        self.sock.connect(addr)
 
     def start(self, img_dims):
         """Starts a thread to listen for images on.
