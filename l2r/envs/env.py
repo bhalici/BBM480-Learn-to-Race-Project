@@ -145,6 +145,7 @@ class RacingEnv(gym.Env):
         self.camera_params = sim_kwargs["camera_params"]
         self.driver_params = sim_kwargs["driver_params"]
 
+        # local confiig mappings
         controller_kwargs = env_kwargs["controller_kwargs"]
         reward_kwargs = env_kwargs["reward_kwargs"]
         action_if_kwargs = env_kwargs["action_if_kwargs"]
@@ -166,9 +167,10 @@ class RacingEnv(gym.Env):
             GranTurismo(**reward_kwargs)
             if self.reward_pol == "default"
             else CustomReward(**reward_kwargs)
+        )
 
         # openAI gym compliance - action space
-        self.action_space = Box(low=-1., high=1., shape=(2,), dtype=np.float64)
+        self.action_space = Box(low=-1.0, high=1.0, shape=(2,), dtype=np.float64)
         self.multimodal = env_kwargs["multimodal"]
 
         # misc
