@@ -139,22 +139,26 @@ class RacingEnv(gym.Env):
         self.camera_params = sim_kwargs['camera_params']
         self.driver_params = sim_kwargs['driver_params']
 
-        # local confiig mappings
-        controller_kwargs=env_kwargs['controller_kwargs']        
-        reward_kwargs=env_kwargs['reward_kwargs']           
-        action_if_kwargs=env_kwargs['action_if_kwargs']          
-
-        cameras=env_kwargs['cameras']         
-        pose_if_kwargs=env_kwargs['pose_if_kwargs']           
+        controller_kwargs = env_kwargs["controller_kwargs"]
+        reward_kwargs = env_kwargs["reward_kwargs"]
+        action_if_kwargs = env_kwargs["action_if_kwargs"]
+        cameras = env_kwargs["cameras"]
+        pose_if_kwargs = env_kwargs["pose_if_kwargs"]
 
         # class init
         self.controller = SimulatorController(**controller_kwargs)
         self.action_if = utils.ActionInterface(**action_if_kwargs)
         self.pose_if = utils.PoseInterface(**pose_if_kwargs)
 
-        self.cameras = [(name, params, utils.CameraInterface(**params)) for name, params in cameras.items() if name in self.sensors]
+        self.cameras = [
+            (name, params, utils.CameraInterface(**params))
+            for name, params in cameras.items()
+            if name in self.sensors
+        ]
 
-        self.reward = GranTurismo(**reward_kwargs) if self.reward_pol == 'default' \
+        self.reward = (
+            GranTurismo(**reward_kwargs)
+            if self.reward_pol == "default"
             else CustomReward(**reward_kwargs)
 
         # openAI gym compliance - action space
@@ -164,29 +168,36 @@ class RacingEnv(gym.Env):
         # misc
         self.last_restart = time.time()
 
-    def make(self, level=False, multimodal=False, sensors=False, camera_params=False, 
-            driver_params=False, multi_agent=False, remake=False, cameras=False):
+    def make(
+        self,
+        level=False,
+        multimodal=False,
+        sensors=False,
+        camera_params=False,
+        driver_params=False,
+        segm_params=False,
+        birdseye_params=False,
+        birdseye_segm_params=False,
+        vehicle_params=None,
+        multi_agent=False,
+        remake=False,
+        cameras=False,
+    ):
         """
         Make does not start the simulator process. It does, however, configure the simulator's settings. 
         The simulator process must be running prior to calling this method, otherwise an error
+
         will occur when trying to establish a connection with the simulator.
 
         :param str level: the desired racetrack map
-
         :param bool multimodal: if false, then the agent is 'visual only'
           and only receives pixel values, if true, the agent also has access
           to additional sensor data
-        
         :param dict camera_params: camera parameters to set
-        
         :param list sensors: sensors to enable for the simulation
-        
         :param dict driver_params: driver parameters to modify
-        
         :param multi_agent: not currently supported
-        
         :param bool remake: if remaking, reset the camera interface
-
         :params list cameras: camera interface configuration
         """
 
@@ -194,8 +205,15 @@ class RacingEnv(gym.Env):
         self.sensors = sensors if sensors else self.sensors
         self.driver_params = driver_params if driver_params else self.driver_params
         self.camera_params = camera_params if camera_params else self.camera_params
-            
-        self.cameras = [(name, params, utils.CameraInterface(**params)) for name, params in cameras.items() if name in self.sensors] if cameras else self.cameras
+        self.cameras = (
+            [
+                (name, params, utils.CameraInterface(**params))
+                for name, params in cameras.items()
+                if name in self.sensors
+            ]
+            if cameras
+            else self.cameras
+        )
 
         if type(level) == str:
             self.level = level
@@ -428,7 +446,9 @@ class RacingEnv(gym.Env):
             _spaces[name] = Box(low=0, high=255, shape=_shape, dtype=np.uint8)
 
         if self._multimodal:
-            _spaces['sensors'] = Box(low=np.array(MIN_OBS_ARR), high=np.array(MAX_OBS_ARR), dtype=np.float64)
+            _spaces["sensors"] = Box(
+                low=np.array(MIN_OBS_ARR), high=np.array(MAX_OBS_ARR), dtype=np.float64
+            )
         self.observation_space = Dict(_spaces)
 
     def _observe(self):

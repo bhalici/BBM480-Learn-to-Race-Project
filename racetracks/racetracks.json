@@ -3,6 +3,13 @@
 		{
 			"version": "ArrivalSim-linux-0.7.0.182276",
 			"levels": {
+				"AngleseyNational": "../../../ArrivalSim/Content/Ribbon/anglesey_national/anglesey_national.umap",
+				"Thruxton": "../../../ArrivalSim/Content/Ribbon/thruxton/thruxton.umap"
+			}
+		},
+		{
+			"version": "ArrivalSim-linux-0.7.0-cmu4",
+			"levels": {
 				"OneLane2": "../../../ArrivalSim/Content/OneLane/Maps/OneLane2.umap",
 				"OneLane": "../../../ArrivalSim/Content/OneLane/Maps/OneLane.umap",
 				"VegasNorthRoad": "../../../ArrivalSim/Content/Ribbon/VegasNorthRoad/VegasNorthRoad.umap",
