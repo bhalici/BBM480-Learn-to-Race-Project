@@ -59,26 +59,27 @@ N_SEGMENTS = 10
 
 # Pose observation space boundaries
 MIN_OBS_ARR = [
-    -1., -1., -1.,                   # steering, gear, mode
-    -200., -200., -10.,              # velocity
-    -100., -100., -100.,             # acceleration
-    -1., -1., -5.,                   # angular velocity
-    -6.2832, -6.2832, -6.2832,       # yaw, pitch, roll
-    -2000., 2000., 2000.,            # location coordinates in the format (y, x, z)
-    -2000., -2000., -2000., -2000.,  # rpm (per wheel)
-    -1., -1., -1., -1.,              # brake (per wheel)
-    -1., -1., -1300., -1300.]        # torq (per wheel)
+    -1.0, -1.0, -1.0,                   # steering, gear, mode
+    -200.0, -200.0, -10.0,              # velocity
+    -100.0, -100.0, -100.0,             # acceleration
+    -1.0, -1.0, -5.0,                   # angular velocity
+    -6.2832, -6.2832, -6.2832,          # yaw, pitch, roll
+    -2000.0, 2000.0, 2000.0,            # location coordinates in the format (y, x, z)
+    -2000.0, -2000.0, -2000.0, -2000.0, # rpm (per wheel)
+    -1.0, -1.0, -1.0, -1.0,             # brake (per wheel)
+    -1.0, -1.0, -1300.0, -1300.0,       # torq (per wheel)
+]
 
 MAX_OBS_ARR = [
-    1., 4., 1.,                  # steering, gear, mode
-    200., 200., 10.,             # velocity
-    100., 100., 100.,            # acceleration
-    1., 1., 5.,                  # angular velocity
-    6.2832, 6.2832, 6.2832,      # yaw, pitch, roll
-    2000., 2000., 2000.,         # location coordinates in the format (y, x, z)
-    2500., 2500., 2500., 2500.,  # rpm (per wheel)
-    1., 1., 2., 2.,              # brake (per wheel)
-    1., 1., 1300., 1300.         # torq (per wheel)
+    1.0, 4.0, 1.0,                  # steering, gear, mode
+    200.0, 200.0, 10.0,             # velocity
+    100.0, 100.0, 100.0,            # acceleration
+    1.0, 1.0, 5.0,                  # angular velocity
+    6.2832, 6.2832, 6.2832,         # yaw, pitch, roll
+    2000.0, 2000.0, 2000.0,         # location coordinates in the format (y, x, z)
+    2500.0, 2500.0, 2500.0, 2500.0, # rpm (per wheel)
+    1.0, 1.0, 2.0, 2.0,             # brake (per wheel)
+    1.0, 1.0, 1300.0, 1300.0,       # torq (per wheel)
 ]
 
 # Racetrack IDs
@@ -113,13 +114,13 @@ class RacingEnv(gym.Env):
    """
 
     def __init__(
-            self,
-            env_kwargs,
-            sim_kwargs,
-            zone=False,
-            provide_waypoints=False,
-            manual_segments=False,
-            multi_agent=False
+        self,
+        env_kwargs,
+        sim_kwargs,
+        zone=False,
+        provide_waypoints=False,
+        manual_segments=False,
+        multi_agent=False,
     ):
 
         # switches
@@ -133,7 +134,7 @@ class RacingEnv(gym.Env):
         self.training = True if not self.evaluation else False
        
         # global config mappings
-        self.n_eval_laps = env_kwargs["n_eval_laps"] 
+        self.n_eval_laps = env_kwargs["n_eval_laps"]
         self.max_timesteps = env_kwargs["max_timesteps"]
         self.not_moving_timeout = env_kwargs["not_moving_timeout"]
         self.observation_delay = env_kwargs["obs_delay"]
@@ -274,7 +275,7 @@ class RacingEnv(gym.Env):
             driver_params=self.driver_params,
             vehicle_params=self.vehicle_params,
             multi_agent=self.multi_agent,
-            remake=True
+            remake=True,
         )
 
     def _check_restart(self, done):
