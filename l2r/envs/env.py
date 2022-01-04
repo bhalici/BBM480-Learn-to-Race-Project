@@ -128,20 +128,20 @@ class RacingEnv(gym.Env):
             provide_waypoints if provide_waypoints else env_kwargs["provide_waypoints"]
         )
         self.zone = zone
-        self.multi_agent = multi_agent # currently not supported; future
+        self.multi_agent = multi_agent  # currently not supported; future
         self.evaluation = env_kwargs["eval_mode"]
         self.training = True if not self.evaluation else False
        
         # global config mappings
-        self.n_eval_laps=env_kwargs["n_eval_laps"]                
-        self.max_timesteps=env_kwargs["max_timesteps"]                
-        self.not_moving_timeout=env_kwargs["not_moving_timeout"]
-        self.observation_delay=env_kwargs["obs_delay"]                        
-        self.reward_pol=env_kwargs["reward_pol"]                      
+        self.n_eval_laps = env_kwargs["n_eval_laps"] 
+        self.max_timesteps = env_kwargs["max_timesteps"]
+        self.not_moving_timeout = env_kwargs["not_moving_timeout"]
+        self.observation_delay = env_kwargs["obs_delay"]
+        self.reward_pol = env_kwargs["reward_pol"]
 
         self.level = sim_kwargs["racetrack"]
         self.vehicle_params = sim_kwargs["vehicle_params"]
-        self.sensors = sim_kwargs["active_sensors"]                     
+        self.sensors = sim_kwargs["active_sensors"]
         self.camera_params = sim_kwargs["camera_params"]
         self.driver_params = sim_kwargs["driver_params"]
 
@@ -363,8 +363,8 @@ class RacingEnv(gym.Env):
         else:
             pass
 
-        self.tracker.wrong_way = False # reset
-        self.tracker.idx_sequence = [0] * 5 # reset
+        self.tracker.wrong_way = False  # reset
+        self.tracker.idx_sequence = [0] * 5  # reset
 
         # reset simulator sensors
         self.controller.set_mode_ai()
@@ -382,7 +382,7 @@ class RacingEnv(gym.Env):
             cam.reset()
 
         # no delay is causing issues with the initial starting index
-        #time.sleep(MEDIUM_DELAY)
+        # time.sleep(MEDIUM_DELAY)
         self.poll_simulator(new_level, random_pos)
 
         _observation = self._observe()
@@ -400,7 +400,7 @@ class RacingEnv(gym.Env):
 
     def poll_simulator(self, level, random_pos):
         """Poll the simulator until it receives an action"""
-        action = (1.0, 0) # steering, acceleration
+        action = (1.0, 0)  # steering, acceleration
 
         while True:
             self.action_if.act(action)
@@ -566,7 +566,7 @@ class RacingEnv(gym.Env):
             car_dims=CAR_DIMS,
         )
 
-        #self.segment_coords = self.tracker.get_segment_coords(self.centerline_arr, self.tracker.segment_idxs)
+        # self.segment_coords = self.tracker.get_segment_coords(self.centerline_arr, self.tracker.segment_idxs)
 
 
     def record_manually(
@@ -624,13 +624,13 @@ class RacingEnv(gym.Env):
         next_segment_idx = next_segment_idx % (N_SEGMENTS)
         
         try:
-            #pos = self.segment_poses[next_segment_idx]
+            # pos = self.segment_poses[next_segment_idx]
             pos = [0]*4
             pos[0] = self.tracker.segment_coords["first"][next_segment_idx][0] # x
             pos[1] = self.tracker.segment_coords["first"][next_segment_idx][1] # y
 
-            #dy = pos[1]-self.tracker.segment_coords["second"][next_segment_idx][1]
-            #dx = pos[0]-self.tracker.segment_coords["second"][next_segment_idx][0]
+            # dy = pos[1]-self.tracker.segment_coords["second"][next_segment_idx][1]
+            # dx = pos[0]-self.tracker.segment_coords["second"][next_segment_idx][0]
             
             pos[2] = LEVEL_Z_DICT[self.active_level] #
             pos[3] = self.race_yaw[self.local_segment_idxs[next_segment_idx]]
