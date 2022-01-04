@@ -59,6 +59,7 @@ N_SEGMENTS = 10
 
 # Pose observation space boundaries
 MIN_OBS_ARR = [
+<<<<<<< HEAD
     -1., -1., -1.,                   # steering, gear, mode
     -200., -200., -10.,              # velocity
     -100., -100., -100.,             # acceleration
@@ -79,6 +80,71 @@ MAX_OBS_ARR = [
     2500., 2500., 2500., 2500.,  # rpm (per wheel)
     1., 1., 2., 2.,              # brake (per wheel)
     1., 1., 1300., 1300.         # torq (per wheel)
+=======
+    -1.0,
+    -1.0,
+    -1.0,  # steering, gear, mode
+    -200.0,
+    -200.0,
+    -10.0,  # velocity
+    -100.0,
+    -100.0,
+    -100.0,  # acceleration
+    -1.0,
+    -1.0,
+    -5.0,  # angular velocity
+    -6.2832,
+    -6.2832,
+    -6.2832,  # yaw, pitch, roll
+    -2000.0,
+    2000.0,
+    2000.0,  # location coordinates in the format (y, x, z)
+    -2000.0,
+    -2000.0,
+    -2000.0,
+    -2000.0,  # rpm (per wheel)
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0,  # brake (per wheel)
+    -1.0,
+    -1.0,
+    -1300.0,
+    -1300.0,  # torq (per wheel)
+]
+
+MAX_OBS_ARR = [
+    1.0,
+    4.0,
+    1.0,  # steering, gear, mode
+    200.0,
+    200.0,
+    10.0,  # velocity
+    100.0,
+    100.0,
+    100.0,  # acceleration
+    1.0,
+    1.0,
+    5.0,  # angular velocity
+    6.2832,
+    6.2832,
+    6.2832,  # yaw, pitch, roll
+    2000.0,
+    2000.0,
+    2000.0,  # location coordinates in the format (y, x, z)
+    2500.0,
+    2500.0,
+    2500.0,
+    2500.0,  # rpm (per wheel)
+    1.0,
+    1.0,
+    2.0,
+    2.0,  # brake (per wheel)
+    1.0,
+    1.0,
+    1300.0,
+    1300.0,  # torq (per wheel)
+>>>>>>> upstream/master
 ]
 
 # Racetrack IDs
@@ -150,6 +216,11 @@ class RacingEnv(gym.Env):
         self.action_if = utils.ActionInterface(**action_if_kwargs)
         self.pose_if = utils.PoseInterface(**pose_if_kwargs)
 
+<<<<<<< HEAD
+=======
+        # self.cameras = [(camera_sensor_name,
+        #    utils.CameraInterface(**camera_if_kwargs))]
+>>>>>>> upstream/master
         self.cameras = [
             (name, params, utils.CameraInterface(**params))
             for name, params in cameras.items()

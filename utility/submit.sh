@@ -77,7 +77,7 @@ setup_commits() {
 submit() {
   check_remote
   setup_lfs
-  setup_commits
+  setup_commits "$@"
 }
 
 

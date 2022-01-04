@@ -1,8 +1,9 @@
-from agents.random_agent import RandomAgent
+# from agents.random_agent import RandomAgent
+from agents.sac_agent import SACAgent
 
 
 class SubmissionConfig(object):
-    agent = RandomAgent
+    agent = SACAgent
     pre_eval_time = 100
 
 
@@ -30,10 +31,17 @@ class EnvConfig(object):
     action_if_kwargs = {
         "max_accel": 6,
         "min_accel": -16,
-        "max_steer": .3,
-        "min_steer": -.3,
+        "max_steer": 0.3,
+        "min_steer": -0.3,
         "ip": "0.0.0.0",
         "port": 7077,
+    }
+    pose_if_kwargs = {
+        "ip": "0.0.0.0",
+        "port": 7078,
+    }
+    logger_kwargs = {
+        "default": True,
     }
     cameras = {
         "CameraFrontRGB": {
@@ -91,35 +99,12 @@ class EnvConfig(object):
             "Height": 384,
         },
     }
-    pose_if_kwargs = {
-        "ip": "0.0.0.0",
-        "port": 7078,
-    }
-    camera_if_kwargs = {
-        "ip": "0.0.0.0",
-        "port": 8008,
-    }
-    segm_if_kwargs = {
-        "ip": 'tcp://127.0.0.1',
-        "port": 8009
-    }
-    birdseye_if_kwargs = {
-        "ip": 'tcp://127.0.0.1',
-        "port": 8010
-    }
-    birdseye_segm_if_kwargs = {
-        "ip": 'tcp://127.0.0.1',
-        "port": 8011
-    }
-    logger_kwargs = {
-        "default": True,
-    }
+
 
 class SimulatorConfig(object):
     racetrack = "Thruxton"
     active_sensors = [
         "CameraFrontRGB",
-        "ImuOxtsSensor",
     ]
     driver_params = {
         "DriverAPIClass": "VApiUdp",
