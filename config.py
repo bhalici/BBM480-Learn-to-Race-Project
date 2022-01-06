@@ -45,7 +45,7 @@ class EnvConfig(object):
     }
     cameras = {
         "CameraFrontRGB": {
-            "Addr": "tcp://127.0.0.1:8008",
+            "Addr": "tcp://0.0.0.0:8008",
             "Format": "ColorBGR8",
             "FOVAngle": 90,
             "Width": 512,
