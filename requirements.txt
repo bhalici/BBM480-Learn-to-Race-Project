@@ -1,7 +1,6 @@
 loguru
 aicrowd-gym
 scipy
-bluepy
 gym==0.20.0
 gast==0.2.2
 h5py==2.10.0
@@ -17,4 +16,3 @@ torchvision
 websocket_client==0.57.0
 tqdm
 ipdb
-tensorboardX

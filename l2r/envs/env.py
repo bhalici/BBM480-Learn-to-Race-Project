@@ -11,6 +11,7 @@ import os
 import pathlib
 import random
 import time
+import math
 
 import gym
 import matplotlib.path as mplPath
@@ -58,69 +59,27 @@ N_SEGMENTS = 10
 
 # Pose observation space boundaries
 MIN_OBS_ARR = [
-    -1.0,
-    -1.0,
-    -1.0,  # steering, gear, mode
-    -200.0,
-    -200.0,
-    -10.0,  # velocity
-    -100.0,
-    -100.0,
-    -100.0,  # acceleration
-    -1.0,
-    -1.0,
-    -5.0,  # angular velocity
-    -6.2832,
-    -6.2832,
-    -6.2832,  # yaw, pitch, roll
-    -2000.0,
-    2000.0,
-    2000.0,  # location coordinates in the format (y, x, z)
-    -2000.0,
-    -2000.0,
-    -2000.0,
-    -2000.0,  # rpm (per wheel)
-    -1.0,
-    -1.0,
-    -1.0,
-    -1.0,  # brake (per wheel)
-    -1.0,
-    -1.0,
-    -1300.0,
-    -1300.0,  # torq (per wheel)
+    -1.0, -1.0, -1.0,                   # steering, gear, mode
+    -200.0, -200.0, -10.0,              # velocity
+    -100.0, -100.0, -100.0,             # acceleration
+    -1.0, -1.0, -5.0,                   # angular velocity
+    -6.2832, -6.2832, -6.2832,          # yaw, pitch, roll
+    -2000.0, 2000.0, 2000.0,            # location coordinates in the format (y, x, z)
+    -2000.0, -2000.0, -2000.0, -2000.0, # rpm (per wheel)
+    -1.0, -1.0, -1.0, -1.0,             # brake (per wheel)
+    -1.0, -1.0, -1300.0, -1300.0,       # torq (per wheel)
 ]
 
 MAX_OBS_ARR = [
-    1.0,
-    4.0,
-    1.0,  # steering, gear, mode
-    200.0,
-    200.0,
-    10.0,  # velocity
-    100.0,
-    100.0,
-    100.0,  # acceleration
-    1.0,
-    1.0,
-    5.0,  # angular velocity
-    6.2832,
-    6.2832,
-    6.2832,  # yaw, pitch, roll
-    2000.0,
-    2000.0,
-    2000.0,  # location coordinates in the format (y, x, z)
-    2500.0,
-    2500.0,
-    2500.0,
-    2500.0,  # rpm (per wheel)
-    1.0,
-    1.0,
-    2.0,
-    2.0,  # brake (per wheel)
-    1.0,
-    1.0,
-    1300.0,
-    1300.0,  # torq (per wheel)
+    1.0, 4.0, 1.0,                  # steering, gear, mode
+    200.0, 200.0, 10.0,             # velocity
+    100.0, 100.0, 100.0,            # acceleration
+    1.0, 1.0, 5.0,                  # angular velocity
+    6.2832, 6.2832, 6.2832,         # yaw, pitch, roll
+    2000.0, 2000.0, 2000.0,         # location coordinates in the format (y, x, z)
+    2500.0, 2500.0, 2500.0, 2500.0, # rpm (per wheel)
+    1.0, 1.0, 2.0, 2.0,             # brake (per wheel)
+    1.0, 1.0, 1300.0, 1300.0,       # torq (per wheel)
 ]
 
 # Racetrack IDs
@@ -130,35 +89,34 @@ RACETRACKS = {
     "AngleseyNational": 2,
 }
 
-LEVEL_Z_DICT = {"Thruxton": 63.0, "VegasNorthRoad": 0.4, "AngleseyNational": 14.0}
+LEVEL_Z_DICT = {
+    "Thruxton": 63.0,
+    "VegasNorthRoad": 0.4,
+    "AngleseyNational": 14.0
+}
 
-COORD_MULTIPLIER = {"Thruxton": -1, "VegasNorthRoad": -1}
+COORD_MULTIPLIER = {
+    "Thruxton": -1,
+    "VegasNorthRoad": -1
+}
 
 
 class RacingEnv(gym.Env):
     """A reinforcement learning environment for autonomous racing.
 
-    :param int max_timesteps: maximimum number of timesteps per episode
-    :param dict controller_kwargs: keyword args for the simulator controller
-    :param dict reward_kwargs: keyword args the reward policy
-    :param dict action_if_kwargs: keyword args for the action interface
-    :param dict camera_if_kwargs: keyword args for the camera interface
-    :param dict pose_if_kwargs: keyword args for the position receive interface
-    :param str reward_pol: reward policy to use, defaults to GranTurismo
-    :param int not_moving_timeout: terminate if not moving for this many
-      timesteps
+    :param dict env_kwargs: keyword args for environment configuration
+    :param dict sim_kwargs: keyword args for simulator configuration
+    :param manual_segments: a switch for determing whether to use manually-defined segment waypoints
+        in racetracks/racetracks.json or to use automatically-calculated segments via np.linspace
+    :param multi_agent (currently not supported): a switch to enabling multi-agent mode in the simulator
     :param bool provide_waypoints: flag to provide ground-truth, future
-      waypoints on the track in the info returned from **step()**
-    :param float obs_delay: time delay between action and observation
-    """
+      waypoints on the track in the info returned from the step() method
+   """
 
     def __init__(
         self,
         env_kwargs,
         sim_kwargs,
-        segm_if_kwargs=False,
-        birdseye_if_kwargs=False,
-        birdseye_segm_if_kwargs=False,
         zone=False,
         provide_waypoints=False,
         manual_segments=False,
@@ -174,7 +132,7 @@ class RacingEnv(gym.Env):
         self.multi_agent = multi_agent  # currently not supported; future
         self.evaluation = env_kwargs["eval_mode"]
         self.training = True if not self.evaluation else False
-
+       
         # global config mappings
         self.n_eval_laps = env_kwargs["n_eval_laps"]
         self.max_timesteps = env_kwargs["max_timesteps"]
@@ -200,8 +158,6 @@ class RacingEnv(gym.Env):
         self.action_if = utils.ActionInterface(**action_if_kwargs)
         self.pose_if = utils.PoseInterface(**pose_if_kwargs)
 
-        # self.cameras = [(camera_sensor_name,
-        #    utils.CameraInterface(**camera_if_kwargs))]
         self.cameras = [
             (name, params, utils.CameraInterface(**params))
             for name, params in cameras.items()
@@ -236,9 +192,9 @@ class RacingEnv(gym.Env):
         remake=False,
         cameras=False,
     ):
-        """Unlike many environments, make does not start the simulator process.
-        It does, however, configure the simulator's settings. The simulator
-        process must be running prior to calling this method otherwise an error
+        """
+        Make does not start the simulator process. It does, however, configure the simulator's settings. 
+        The simulator process must be running prior to calling this method, otherwise an error
         will occur when trying to establish a connection with the simulator.
 
         :param str level: the desired racetrack map
@@ -248,9 +204,9 @@ class RacingEnv(gym.Env):
         :param dict camera_params: camera parameters to set
         :param list sensors: sensors to enable for the simulation
         :param dict driver_params: driver parameters to modify
-        :param dict vehicle_params: vehicle parameters to set
         :param multi_agent: not currently supported
         :param bool remake: if remaking, reset the camera interface
+        :params list cameras: camera interface configuration
         """
 
         self.level = level if level else self.level
@@ -306,9 +262,10 @@ class RacingEnv(gym.Env):
 
         self.multimodal = multimodal if multimodal else self.multimodal
 
+
     def _restart_simulator(self):
         """Periodically need to restart the container for long runtimes"""
-        print("[RacingEnv] Periodic simulator restart")
+        print("[Env] Periodic simulator restart")
         self.controller.restart_simulator()
         self.make(
             level=self.level,
@@ -353,9 +310,7 @@ class RacingEnv(gym.Env):
         _ = self._check_restart(done)
 
         if self.provide_waypoints:
-            print(
-                f"WARNING: 'self.provide_waypoints' is set to {self.provide_waypoints}"
-            )
+            print(f"[Env] WARNING: 'self.provide_waypoints' is set to {self.provide_waypoints}")
             info["track_idx"] = self.nearest_idx
             info["waypoints"] = self._waypoints()
 
@@ -367,22 +322,22 @@ class RacingEnv(gym.Env):
 
         :param str level: if specified, will set the simulator to this level,
           otherwise set to a random track
-        :param bool random_pos: true/false for random starting position on the
-          track
+        :param bool random_pos: true/false for random starting position on the track
+        :param bool segment_pos: true/false for track starting positions that adhere to segment boundaries
         :return: an intial observation as in the *step* method
         :rtype: see **step()** method
         """
-        # new_level = level if level else random.choice(self.levels)
+
         if level:
             new_level = level
-            print(f"Setting to level: {new_level}")
+            print(f"[Env] Setting to level: {new_level}")
         elif self.levels:
             new_level = random.choice(self.levels)
-            print(f"New random level: {new_level}")
+            print(f"[Env] New random level: {new_level}")
         else:
             new_level = self.level
-            print(f"Continuing with level: {new_level}")
-
+            print(f"[Env] Continuing with level: {new_level}")
+            
         if new_level is self.active_level:
             self.controller.reset_level()
 
@@ -390,7 +345,7 @@ class RacingEnv(gym.Env):
             self.active_level = new_level
             self.controller.set_level(self.active_level)
             self._load_map()
-
+        
         self.nearest_idx, info = None, {}
 
         # give the simulator time to reset
@@ -398,12 +353,8 @@ class RacingEnv(gym.Env):
 
         # randomly initialize starting location
         p = np.random.uniform()
-        # with prob 1/(1+n) use the default start location.
-        if (
-            (random_pos)
-            and (p > 2 / (1 + len(self.random_poses)))
-            and not self.evaluation
-        ):
+        # with prob 1/(1+n) use the default start location. 
+        if (random_pos) and (p > 2/(1+len(self.random_poses))) and not self.evaluation:
             coords, rot = self.random_start_location()
             self.controller.set_location(coords, rot)
             time.sleep(MEDIUM_DELAY)
@@ -443,9 +394,7 @@ class RacingEnv(gym.Env):
         self.tracker.reset(start_idx=self.nearest_idx, segmentwise=segment_pos)
 
         if self.provide_waypoints:
-            print(
-                f"WARNING: 'self.provide_waypoints' is set to {self.provide_waypoints}"
-            )
+            print(f"[Env] WARNING: 'self.provide_waypoints' is set to {self.provide_waypoints}")
             info["waypoints"] = self._waypoints()
             info["track_idx"] = self.nearest_idx
             return observation, info
@@ -554,9 +503,7 @@ class RacingEnv(gym.Env):
 
         :param str level: the racetrack name
         """
-        map_file, self.random_poses, self.segment_poses = level_2_trackmap(
-            self.active_level
-        )
+        map_file, self.random_poses, self.segment_poses = level_2_trackmap(self.active_level)
 
         with open(os.path.join(pathlib.Path().absolute(), map_file), "r") as f:
             self.original_map = json.load(f)
@@ -578,9 +525,7 @@ class RacingEnv(gym.Env):
         self.kdtree = KDTree(self.centerline_arr)
 
         local_segment_idxs_manual = self.poses_to_local_segment_idxs(self.segment_poses)
-        local_segment_idxs_linspace = np.round(
-            np.linspace(0, self.n_indices - 2, N_SEGMENTS + 1)
-        ).astype(int)
+        local_segment_idxs_linspace = np.round(np.linspace(0, self.n_indices-2, N_SEGMENTS+1)).astype(int)
 
         self.local_segment_idxs = (
             local_segment_idxs_linspace
@@ -588,9 +533,17 @@ class RacingEnv(gym.Env):
             else local_segment_idxs_manual
         )
 
-        self.segment_tree = KDTree(
-            np.expand_dims(np.array(self.local_segment_idxs), axis=1)
-        )
+        self.segment_tree = KDTree(np.expand_dims(np.array(self.local_segment_idxs),axis=1))
+
+        race_x = self.centerline_arr[:, 0]
+        race_y = self.centerline_arr[:, 1]
+        X_diff = np.concatenate([race_x[1:] - race_x[:-1],[race_x[0] - race_x[-1]]])
+        Y_diff = np.concatenate([race_y[1:] - race_y[:-1],[race_y[0] - race_y[-1]]])
+        race_yaw = np.arctan(X_diff/Y_diff)  # (L-1, n) 
+        race_yaw[Y_diff < 0] += np.pi
+        self.race_yaw = utils.smooth_yaw(race_yaw)
+        self.max_yaw = np.max(self.race_yaw)
+        self.min_yaw = np.min(self.race_yaw)
 
         self.tracker = ProgressTracker(
             n_indices=len(self.centerline_arr),
@@ -617,6 +570,7 @@ class RacingEnv(gym.Env):
         )
 
         # self.segment_coords = self.tracker.get_segment_coords(self.centerline_arr, self.tracker.segment_idxs)
+
 
     def record_manually(
         self, output_dir, fname="thruxton", num_imgs=5000, sleep_time=0.03
@@ -665,31 +619,25 @@ class RacingEnv(gym.Env):
         rot = {"yaw": pos[3], "pitch": 0.0, "roll": 0.0}
         return coords, rot
 
+    
     def next_segment_start_location(self):
 
         next_segment_idx = self.tracker.current_segment
 
         next_segment_idx = next_segment_idx % (N_SEGMENTS)
-
+        
         try:
             # pos = self.segment_poses[next_segment_idx]
-            pos = [0] * 4
-            pos[0] = self.tracker.segment_coords["first"][next_segment_idx][0]  # x
-            pos[1] = self.tracker.segment_coords["first"][next_segment_idx][1]  # y
+            pos = [0]*4
+            pos[0] = self.tracker.segment_coords["first"][next_segment_idx][0] # x
+            pos[1] = self.tracker.segment_coords["first"][next_segment_idx][1] # y
 
-            dy = pos[1] - self.tracker.segment_coords["second"][next_segment_idx][1]
-            dx = pos[0] - self.tracker.segment_coords["second"][next_segment_idx][0]
-
-            pos[2] = LEVEL_Z_DICT[self.active_level]  #
-            pos[3] = (
-                np.pi
-                if self.active_level == "VegasNorthRoad"
-                and self.tracker.current_segment <= 1
-                else 0
-            ) + np.arctan(
-                dx / dy
-            )  # yaw, radians
-
+            # dy = pos[1]-self.tracker.segment_coords["second"][next_segment_idx][1]
+            # dx = pos[0]-self.tracker.segment_coords["second"][next_segment_idx][0]
+            
+            pos[2] = LEVEL_Z_DICT[self.active_level] #
+            pos[3] = self.race_yaw[self.local_segment_idxs[next_segment_idx]]
+            
         except:
             pdb.set_trace()
             pass
@@ -699,14 +647,16 @@ class RacingEnv(gym.Env):
 
         self.tracker.current_segment += 1
 
-        print(
-            f"Spawning to next segment start location: curr_segment: {self.tracker.current_segment}; respawns: {self.tracker.respawns}; infractions: {self.tracker.num_infractions}\n{coords},{rot}"
-        )
+        print(f"[Env] Spawning to next segment start location")
+        print(f"[Env] Current segment: {self.tracker.current_segment}")
+        print(f"[Env] Respawns: {self.tracker.respawns}; infractions: {self.tracker.num_infractions}")
+        print(f"[Env] Coords: {coords}")
+        print(f"[Env] Rot: {rot}")
 
         return coords, rot
-
+    
     def poses_to_local_segment_idxs(self, poses):
-
+        
         segment_idxs = []
         for (x, y, z, yaw) in poses:
             # enu_x, enu_y, enu_z = self.geo_location.convert_to_ENU((x, y, z))
@@ -716,6 +666,7 @@ class RacingEnv(gym.Env):
 
         return segment_idxs
 
+
     def _waypoints(self, goal="center", ct=3, step=8):
         """Return position of goal"""
         num = len(self.centerline_arr)
@@ -724,3 +675,4 @@ class RacingEnv(gym.Env):
             return np.asarray([self.centerline_arr[idx % num] for idx in idxs])
         else:
             raise NotImplementedError
+
