@@ -290,16 +290,16 @@ class GeoLocation(object):
         h_cos = (length / 2) * cos_val
         h_sin = (length / 2) * sin_val
 
-        Top_Right_x = center[0] + w_cos - h_sin
-        Top_Right_y = center[1] + w_sin + h_cos
+        Top_Right_x = center[0] + w_cos + h_sin
+        Top_Right_y = center[1] - w_sin + h_cos
 
-        Top_Left_x = center[0] - w_cos - h_sin
-        Top_Left_y = center[1] - w_sin + h_cos
+        Top_Left_x = center[0] - w_cos + h_sin
+        Top_Left_y = center[1] + w_sin + h_cos
 
-        Bot_Left_x = center[0] - w_cos + h_sin
+        Bot_Left_x = center[0] + w_cos - h_sin
         Bot_Left_y = center[1] - w_sin - h_cos
 
-        Bot_Right_x = center[0] + w_cos + h_sin
+        Bot_Right_x = center[0] - w_cos - h_sin
         Bot_Right_y = center[1] + w_sin - h_cos
 
         return np.array(
