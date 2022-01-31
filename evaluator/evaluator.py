@@ -96,7 +96,7 @@ class Learn2RaceEvaluator:
         return self.metrics
 
     def register_metrics(self, metrics):
-        lap_completed = self.laps_completed != metrics["laps_completed"]
+        lap_completed = self.laps_completed != metrics.get("laps_completed", 0)
         idx = self.laps_completed
 
         # Check if current lap is part of metrics
@@ -105,15 +105,15 @@ class Learn2RaceEvaluator:
 
         for metric_name in self.metrics_to_add:
             if metric_name in self.metrics[idx]:
-                self.metrics[idx][metric_name] += metrics[metric_name]
+                self.metrics[idx][metric_name] += metrics.get(metric_name, 0)
             else:
-                self.metrics[idx][metric_name] = metrics[metric_name]
+                self.metrics[idx][metric_name] = metrics.get(metric_name, 0)
 
         for metric in self.metrics_to_append:
             if metric in self.metrics[idx]:
-                self.metrics[idx][metric].append(metrics[metric])
+                self.metrics[idx][metric].append(metrics.get(metric, 0))
             else:
-                self.metrics[idx][metric] = [metrics[metric]]
+                self.metrics[idx][metric] = [metrics.get(metric, 0)]
 
         # If the lap is completed, record lap stats
         if lap_completed:
@@ -142,15 +142,15 @@ class Learn2RaceEvaluator:
 
             for key in self.metrics_to_replace:
                 if key in metrics: 
-                    print(key, metrics[key])
+                    print(key, metrics.get(key))
 
             for key in self.metrics_to_add:
                 if key in metrics: 
-                    print(key, metrics[key])
+                    print(key, metrics.get(key))
 
             for key in self.metrics_to_append:
                 if key in metrics: 
-                    print(key, round(np.mean(metrics[key]), 3))
+                    print(key, round(np.mean(metrics.get(key, 0)), 3))
 
     def create_env(self):
         """Your configuration yaml file must contain the keys below."""
