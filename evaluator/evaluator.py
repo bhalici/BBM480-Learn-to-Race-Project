@@ -8,6 +8,10 @@ from l2r.envs.env import RacingEnv
 from config import SubmissionConfig, EnvConfig, SimulatorConfig
 
 
+class SensorNotAllowedError(Exception):
+    pass
+
+
 class Learn2RaceEvaluator:
     """Evaluator class which consists of a 1-hour pre-evaluation phase followed by an evaluation phase."""
 
@@ -21,6 +25,10 @@ class Learn2RaceEvaluator:
         self.submission_config = submission_config
         self.env_config = env_config
         self.sim_config = sim_config
+
+        logger.info("Validating simulator config...")
+        self.check_for_allowed_sensors()
+        logger.success("Simulator config looks good!")
 
         self.agent = None
         self.env = None
@@ -50,6 +58,12 @@ class Learn2RaceEvaluator:
         ]
 
         self.laps_completed = 0
+
+    def check_for_allowed_sensors(self):
+        allowed_cameras = ["CameraFrontRGB", "CameraLeftRGB", "CameraRightRGB"]
+        for sensor in self.sim_config.active_sensors:
+            if sensor not in allowed_cameras:
+                raise SensorNotAllowedError(f"Only {allowed_cameras} are allowed")
 
     def init_agent(self):
         """ """
@@ -120,7 +134,9 @@ class Learn2RaceEvaluator:
             self.laps_completed = metrics["laps_completed"]
 
             # Record the infractions for the completed lap
-            self.metrics[idx]["num_infractions"] = metrics["num_infractions"] - self.infractions_till_last_lap
+            self.metrics[idx]["num_infractions"] = (
+                metrics["num_infractions"] - self.infractions_till_last_lap
+            )
             self.metrics[idx]["pct_complete"] = 100
 
             # Start recording metrics for the next lap
@@ -156,4 +172,3 @@ class Learn2RaceEvaluator:
         """Your configuration yaml file must contain the keys below."""
         self.env = RacingEnv(self.env_config.__dict__, self.sim_config.__dict__)
         self.env.make()
-
