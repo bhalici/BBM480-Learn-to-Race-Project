@@ -1,0 +1,37 @@
+agent_kwargs:
+    experiment_name: 'PPO'
+    inference_only: False
+    load_checkpoint: False
+    record_experience: False
+    encoder_switch: 1
+    use_encoder_type: "vae" 
+    vae:
+        vae_chkpt_statedict: 'l2r/common/models/vae_144w_42h_32latent.pth'
+        latent_dims: 32
+        hiddens: [32, 64, 64, 32, 32]
+        speed_hiddens:  [8, 8]
+        actor_hiddens: [64, 64, 32]
+        im_c: 3
+        im_w: 144
+        im_h: 42
+        ac_input_dims: 32 
+    seed: 0
+    gamma: 0.99
+    lr: 0.003
+    alpha: 0.2
+    num_test_episodes: 1
+    safety_margin: 4.2
+    save_episodes: 1
+    save_freq: 1
+    steps_per_epoch: 5000
+    epochs: 5000
+    batch_size: 256
+    max_ep_len: 50000
+    im_w: 144
+    im_h: 144
+    checkpoint: 'models/sac/checkpoints/best_sac_local_encoder-vae_small_seed-249_episode_480.statedict'
+    model_save_path: '${PREFIX}/l2r/results/${DIRHASH}workspaces/${USER}/results'
+    track_name: 'Thruxton'
+    record_dir: '${PREFIX}/l2r/datasets/l2r/datasets/safety_records_dataset/'
+    runtime: local
+    dirhash: ''

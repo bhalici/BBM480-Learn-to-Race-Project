@@ -75,9 +75,9 @@ class Learn2RaceEvaluator:
     def save_agent_model(self, path):
         self.agent.save_model(path)
 
-    @timeout_decorator.timeout(1 * 60 * 60)
+    @timeout_decorator.timeout(10 * 60 * 60)
     def train(self):
-        logger.info("Starting one-hour 'practice' phase")
+        logger.info("Starting ten-hour 'practice' phase")
         self.agent.training(self.env)
 
     def evaluate(self):

@@ -181,6 +181,7 @@ class CameraInterface(AbstractInterface):
 
     :param dict params: socket connection and interface parameters
     """
+    num = 1
 
     def __init__(self, **params):
         ip = params["ip"] if "ip" in params else "tcp://127.0.0.1"
@@ -210,6 +211,8 @@ class CameraInterface(AbstractInterface):
         :return: RGB image of shape (height, width, 3)
         :rtype: numpy.array
         """
+        cv2.imwrite("/home/racetrack/Desktop/race/l2r-starter-kit/imgs" + str(num) + ".png",self.img)
+        num += 1
         return copy.deepcopy(self.img)
 
     def reset(self):

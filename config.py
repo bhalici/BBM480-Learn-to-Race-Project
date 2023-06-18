@@ -1,9 +1,10 @@
 # from agents.random_agent import RandomAgent
+from agents.ppo_agent import PPOAgent
 from agents.sac_agent import SACAgent
 
 
 class SubmissionConfig(object):
-    agent = SACAgent
+    agent = PPOAgent
     pre_eval_time = 100
 
 
