@@ -5,10 +5,7 @@
 
 ## Setup
 
-1. **Sign up** to join the competition [on the AIcrowd website](https://www.aicrowd.com/challenges/learn-to-race-autonomous-racing-virtual-challenge).
-2. **Download** the Arrival Autonomous Racing Simulator [from this link](https://www.aicrowd.com/clef_tasks/82/task_dataset_files?challenge_id=954).
-
-3. **Fork the repository**. You can use [this link](https://gitlab.aicrowd.com/learn-to-race/l2r-starter-kit/-/forks/new) to create a fork.
+1. **Download** the Arrival Autonomous Racing Simulator [from this link](https://www.aicrowd.com/clef_tasks/82/task_dataset_files?challenge_id=954).
 
 2.  **Clone the repository**
 
