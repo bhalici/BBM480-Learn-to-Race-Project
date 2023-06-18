@@ -10,12 +10,12 @@
 2.  **Clone the repository**
 
     ```
-    git clone git@gitlab.aicrowd.com:<YOUR_AICROWD_USERNAME>/l2r-starter-kit.git
+    git clone git@github.com:bhalici/Learn-to-Race-Challenge.git
     ```
 
 3. **Install** competition specific dependencies!
     ```
-    cd l2r-starter-kit
+    cd Learn-to-Race-Challenge
     pip install -r requirements.txt
     ```
 
