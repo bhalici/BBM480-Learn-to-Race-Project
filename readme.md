@@ -10,12 +10,12 @@
 2.  **Clone the repository**
 
     ```
-    git clone git@github.com:bhalici/Learn-to-Race-Challenge.git
+    git clone git@github.com:bhalici/BBM480-Learn-to-Race-Project.git
     ```
 
 3. **Install** competition specific dependencies!
     ```
-    cd Learn-to-Race-Challenge
+    cd BBM480-Learn-to-Race-Project
     pip install -r requirements.txt
     ```
 
